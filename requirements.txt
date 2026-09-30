@@ -1,4 +1,6 @@
 setuptools>=75
+wheel>=0.45
+setuptools>=75
 wheel
 numpy==1.24.0  # Update numpy to a compatible version for Python 3.11
 Flask==3.0.3
