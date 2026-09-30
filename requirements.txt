@@ -1,4 +1,3 @@
-tensorflow==2.12.0
 numpy==1.24.0  # Update numpy to a compatible version for Python 3.11
 Flask==3.0.3
 requests==2.32.3
