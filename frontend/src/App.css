@@ -24,3 +24,56 @@
 .monaco-editor-host{width:100%;height:100%;min-width:0;min-height:340px}
 .monaco-editor-host .monaco-editor,.monaco-editor-host .overflow-guard{max-width:100%}
 .editor-loading{display:grid;place-items:center;width:100%;height:100%;min-height:340px;color:#718096;background:#fbfcff;font-size:12px}
+
+
+/* Desktop IDE layout: keep the page viewport fixed and scroll inside panels. */
+@media (min-width:981px){
+  html,body,#root{height:100%;min-height:0;overflow:hidden}
+  .studio{height:100dvh;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding:0 24px 12px}
+  .studio-header{flex:0 0 64px;min-height:64px;width:100%}
+  .welcome{flex:0 0 auto;padding:18px 0 14px}
+  .welcome h1{font-size:clamp(26px,2.5vw,38px);margin:7px 0 5px}
+  .welcome p{font-size:13px}
+  .ecosystem-strip{flex:0 0 auto;margin-bottom:12px;padding:9px 13px}
+  .ecosystem-title{margin-bottom:6px}
+  .workspace{flex:1 1 auto;width:100%;min-height:0;align-items:stretch;gap:16px}
+  .editor-panel{display:flex;flex-direction:column;min-height:0;height:100%}
+  .editor-panel>.panel-top{flex:0 0 auto;padding:12px 15px}
+  .language-picker-wrap{flex:0 0 auto;padding:9px 13px}
+  .editor-area{flex:1 1 auto;height:auto;min-height:0}
+  .monaco-editor-host,.editor-loading{height:100%;min-height:0}
+  .right-column{min-height:0;height:100%;grid-template-rows:minmax(150px,0.95fr) minmax(180px,1.05fr);gap:12px}
+  .suggestions-panel,.preview-panel{display:flex;flex-direction:column;min-height:0}
+  .suggestions-panel>.panel-top,.preview-panel>.panel-top{flex:0 0 auto;padding:12px 14px}
+  .suggestion-search{flex:0 0 auto;padding-bottom:8px}
+  .suggestions-list{flex:1 1 auto;min-height:0;max-height:none;overflow-y:auto;overscroll-behavior:contain}
+  .suggestions-footnote,.preview-footer{flex:0 0 auto}
+  .device-toolbar{flex:0 0 auto;padding:6px 12px}
+  .preview-canvas{flex:1 1 auto;height:auto;min-height:0;overflow:auto;overscroll-behavior:contain}
+  .preview-frame-wrap{height:100%;min-height:0}
+  .preview-frame{height:100%;min-height:0}
+  .runtime-note{flex:1 1 auto;min-height:0;overflow:auto}
+  .studio-footer{display:none}
+}
+@media (max-height:700px) and (min-width:981px){
+  .welcome{padding:10px 0 8px}
+  .welcome-kicker{font-size:9px}
+  .welcome h1{font-size:26px}
+  .welcome p{font-size:11px}
+  .ecosystem-strip{padding:7px 11px;margin-bottom:8px}
+  .ecosystem-tags span{padding:3px 6px;font-size:9px}
+}
+@media (max-width:980px){
+  html,body,#root{height:auto;min-height:100%;overflow:auto}
+  .studio{height:auto;min-height:100vh;overflow:visible;display:block}
+  .editor-panel{height:auto}
+  .editor-area{height:420px;min-height:300px;flex:none}
+  .monaco-editor-host,.editor-loading{height:100%;min-height:300px}
+  .right-column{height:auto}
+  .suggestions-panel,.preview-panel{display:block;min-height:0}
+  .suggestions-list{max-height:260px}
+  .preview-canvas{height:500px;min-height:450px;flex:none}
+  .preview-frame-wrap{height:auto;min-height:100%}
+  .preview-frame{height:100%;min-height:470px}
+  .studio-footer{display:flex}
+}
