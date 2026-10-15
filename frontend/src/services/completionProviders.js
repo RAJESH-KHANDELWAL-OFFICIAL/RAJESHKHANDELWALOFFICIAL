@@ -112,7 +112,7 @@ export function registerCompletionProvider(monaco, language, getCode) {
           label: String(item.label),
           kind: getMonacoKind(monaco, item.kind),
           detail: item.detail || 'Code completion',
-          insertText: item.insertText || item.insert || String(item.label),
+          insertText: (item.insertText || item.insert || String(item.label)).replace(/\\n/g, '\n'),
           range,
           sortText: item.kind === 'Snippet' ? '0' + item.label : '1' + item.label
         }))
