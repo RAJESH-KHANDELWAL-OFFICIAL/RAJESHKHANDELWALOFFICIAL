@@ -178,7 +178,7 @@ function App() {
               onReady={(editor) => { editorRef.current = editor; }}
             />
           </div>
-          <div className="editor-footer"><span><i className="tiny-live-dot" /> LOCAL EDITOR READY</span><span>{activeValue.split('\n').length} lines · {activeValue.length} chars</span><button className="text-button" type="button" onClick={copyCode}>Copy</button><button className="text-button" type="button" onClick={downloadCode}>Download</button></div>
+          <div className="editor-footer"><span><i className="tiny-live-dot" /> MONACO IDE READY</span><span>{activeValue.split('\n').length} lines · {activeValue.length} chars</span><button className="text-button" type="button" onClick={copyCode}>Copy</button><button className="text-button" type="button" onClick={downloadCode}>Download</button></div>
         </div>
 
         <div className="right-column">
@@ -196,7 +196,7 @@ function App() {
           </section>
         </div>
       </section>
-      <footer className="studio-footer"><span>DR RAJESH KHANDELWAL IBC · MAIN BASE FOUNDATION</span><span>Global language catalog · expandable architecture · not yet connected to language-server / AI completion providers</span></footer>
+      <footer className="studio-footer"><span>DR RAJESH KHANDELWAL IBC · MAIN BASE FOUNDATION</span><span>Monaco IDE · local completions · optional LSP and remote AI provider adapters</span></footer>
       {notice && <div className="notice" role="status">{notice}</div>}
     </main>
   );
