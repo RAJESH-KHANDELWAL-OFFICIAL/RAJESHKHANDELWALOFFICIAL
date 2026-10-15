@@ -1,11 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import { MONACO_LANGUAGE_IDS, registerCompletionProvider } from '../services/completionProviders';
+import { createLspClient } from '../services/lspClient';
 
 export default function GlobalCodeEditor({ language, value, onChange, onCursorChange, onReady }) {
   const editorRef = useRef(null);
   const monacoRef = useRef(null);
   const valueRef = useRef(value);
+  const lspRef = useRef(null);
   valueRef.current = value;
 
   const languageId = MONACO_LANGUAGE_IDS[language] || 'plaintext';
@@ -53,8 +55,14 @@ export default function GlobalCodeEditor({ language, value, onChange, onCursorCh
   useEffect(() => {
     const monaco = monacoRef.current;
     if (!monaco) return undefined;
-    const disposable = registerCompletionProvider(monaco, language, () => valueRef.current);
-    return () => disposable.dispose();
+    const lspClient = createLspClient({ monaco, editor: editorRef.current, language });
+    lspRef.current = lspClient;
+    const disposable = registerCompletionProvider(monaco, language, () => valueRef.current, () => lspRef.current);
+    return () => {
+      disposable.dispose();
+      lspRef.current?.dispose();
+      lspRef.current = null;
+    };
   }, [language]);
 
   return (
