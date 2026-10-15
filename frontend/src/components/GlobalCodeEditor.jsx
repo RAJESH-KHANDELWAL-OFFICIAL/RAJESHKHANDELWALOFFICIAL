@@ -32,11 +32,12 @@ export default function GlobalCodeEditor({ language, value, onChange, onCursorCh
     editor.updateOptions({
       fontSize: 13,
       lineHeight: 23,
-      minimap: { enabled: true, scale: 1 },
+      minimap: { enabled: false },
       automaticLayout: true,
       tabSize: 2,
       insertSpaces: true,
-      wordWrap: 'off',
+      wordWrap: 'on',
+      scrollbar: { vertical: 'auto', horizontal: 'hidden', alwaysConsumeMouseWheel: false },
       scrollBeyondLastLine: false,
       suggestOnTriggerCharacters: true,
       quickSuggestions: { other: true, comments: false, strings: true },
@@ -80,8 +81,10 @@ export default function GlobalCodeEditor({ language, value, onChange, onCursorCh
           readOnly: false,
           ariaLabel: `${language} code editor`,
           automaticLayout: true,
-          minimap: { enabled: true },
-          scrollBeyondLastLine: false
+          minimap: { enabled: false },
+          scrollBeyondLastLine: false,
+          wordWrap: 'on',
+          scrollbar: { vertical: 'auto', horizontal: 'hidden', alwaysConsumeMouseWheel: false }
         }}
       />
     </div>
