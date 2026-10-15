@@ -246,7 +246,36 @@ ${js}
           </div>
         </div>
 
-        <div className="preview-panel">
+        <div className="right-column">
+          <div className="suggestions-panel">
+            <div className="panel-top suggestions-heading">
+              <div>
+                <div className="panel-title">Smart Code Suggestions</div>
+                <div className="panel-caption">{typedPrefix ? `Matches for “${typedPrefix}”` : 'Start typing to find matching code'}</div>
+              </div>
+              <span className="suggestion-count">{suggestions.length}</span>
+            </div>
+            <div className="suggestions-list">
+              {suggestions.length ? suggestions.map((suggestion, index) => (
+                <button className="suggestion-item" type="button" key={suggestion.label + index} onClick={() => applySuggestion(suggestion)}>
+                  <span className="suggestion-main">
+                    <span className="suggestion-name">{suggestion.label}</span>
+                    <span className="suggestion-detail">{suggestion.detail}</span>
+                    <code className="suggestion-code">{suggestion.code}</code>
+                  </span>
+                  <span className="suggestion-insert" aria-hidden="true">↙</span>
+                </button>
+              )) : (
+                <div className="no-suggestions">
+                  <strong>No exact match yet</strong>
+                  <span>Keep typing, or switch HTML / CSS / JS to see suggestions for that language.</span>
+                </div>
+              )}
+            </div>
+            <div className="suggestions-footnote">Select a suggestion to insert it at your cursor.</div>
+          </div>
+
+          <div className="preview-panel">
           <div className="panel-top preview-heading">
             <div>
               <div className="panel-title">Visual Preview</div>
@@ -281,6 +310,7 @@ ${js}
             </div>
           </div>
           <div className="preview-footer">Preview isolated from the main app for safer testing.</div>
+          </div>
         </div>
       </section>
 
