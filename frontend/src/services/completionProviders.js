@@ -64,7 +64,7 @@ function getMonacoKind(monaco, kind) {
  * and may return { suggestions: [{ label, insertText, detail, kind? }] } or an array.
  * Keep API credentials on a backend; never put provider secrets in REACT_APP variables.
  */
-export function registerCompletionProvider(monaco, language, getCode) {
+export function registerCompletionProvider(monaco, language, getCode, getLspClient) {
   const languageId = MONACO_LANGUAGE_IDS[language] || MONACO_LANGUAGE_IDS[resolveLanguage(language)] || 'plaintext';
   return monaco.languages.registerCompletionItemProvider(languageId, {
     triggerCharacters: ['.', '<', ':', '/', '"', "'", '@'],
@@ -78,6 +78,25 @@ export function registerCompletionProvider(monaco, language, getCode) {
       };
       const prefix = word.word || '';
       let items = localItems(language).filter((item) => !prefix || item.label.toLowerCase().startsWith(prefix.toLowerCase()));
+
+      const lspClient = getLspClient?.();
+      if (lspClient?.isReady()) {
+        try {
+          const lspItems = await lspClient.complete(position);
+          const converted = lspItems.map((item) => ({
+            label: typeof item.label === 'string' ? item.label : item.label?.label || 'completion',
+            detail: typeof item.detail === 'string' ? item.detail : 'Language server completion',
+            insertText: item.textEdit?.newText || item.insertText || (typeof item.label === 'string' ? item.label : item.label?.label) || '',
+            kind: item.insertTextFormat === 2 ? 'Snippet' : 'Keyword',
+            sortText: item.sortText || item.label
+          }));
+          items = [...converted, ...items].filter((item, index, all) =>
+            all.findIndex((other) => String(other.label).toLowerCase() === String(item.label).toLowerCase()) === index
+          );
+        } catch {
+          // Continue with the local and optional remote provider.
+        }
+      }
 
       const endpoint = process.env.REACT_APP_COMPLETION_API_URL;
       if (endpoint) {
@@ -114,7 +133,7 @@ export function registerCompletionProvider(monaco, language, getCode) {
           detail: item.detail || 'Code completion',
           insertText: (item.insertText || item.insert || String(item.label)).replace(/\\n/g, '\n'),
           range,
-          sortText: item.kind === 'Snippet' ? '0' + item.label : '1' + item.label
+          sortText: item.sortText || (item.kind === 'Snippet' ? '0' + item.label : '1' + item.label)
         }))
       };
     }
