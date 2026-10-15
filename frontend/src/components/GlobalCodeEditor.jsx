@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Editor from '@monaco-editor/react';
 import { MONACO_LANGUAGE_IDS, registerCompletionProvider } from '../services/completionProviders';
 import { createLspClient } from '../services/lspClient';
@@ -8,6 +8,7 @@ export default function GlobalCodeEditor({ language, value, onChange, onCursorCh
   const monacoRef = useRef(null);
   const valueRef = useRef(value);
   const lspRef = useRef(null);
+  const [editorReady, setEditorReady] = useState(false);
   valueRef.current = value;
 
   const languageId = MONACO_LANGUAGE_IDS[language] || 'plaintext';
@@ -50,6 +51,7 @@ export default function GlobalCodeEditor({ language, value, onChange, onCursorCh
       if (model) onCursorChange(model.getOffsetAt(event.position));
     });
     onReady?.(editor);
+    setEditorReady(true);
   };
 
   useEffect(() => {
@@ -63,7 +65,7 @@ export default function GlobalCodeEditor({ language, value, onChange, onCursorCh
       lspRef.current?.dispose();
       lspRef.current = null;
     };
-  }, [language]);
+  }, [language, editorReady]);
 
   return (
     <div className="monaco-editor-host">
