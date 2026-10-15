@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import './App.css';
+import GlobalCodeEditor from './components/GlobalCodeEditor';
 import { LANGUAGE_GROUPS, LANGUAGE_META, BASE_COMPLETIONS, LANGUAGE_KEYWORDS, ECOSYSTEMS } from './data/languageCatalog';
 
 const STARTER_HTML = `<main class="card">
@@ -62,6 +63,7 @@ function App() {
   const [notice, setNotice] = useState('');
   const [cursorPosition, setCursorPosition] = useState(0);
   const [search, setSearch] = useState('');
+  const editorRef = React.useRef(null);
 
   const languageInfo = LANGUAGE_META[language] || { label: language, category: 'Programming' };
   const activeValue = language === 'html' ? html : language === 'css' ? css : language === 'javascript' ? js : (codeByLanguage[language] || '');
@@ -92,14 +94,26 @@ function App() {
   };
 
   const applySuggestion = (suggestion) => {
-    const before = activeValue.slice(0, cursorPosition);
-    const after = activeValue.slice(cursorPosition);
-    const match = before.match(/[A-Za-z_$][A-Za-z0-9_$.-]*$/);
-    const start = match ? before.length - match[0].length : before.length;
-    const replacement = suggestion.code && suggestion.code.includes('\\n') ? suggestion.code.replace(/\\n/g, '\n') : suggestion.code || suggestion.insert;
-    setActiveValue(before.slice(0, start) + replacement + after);
-    setCursorPosition(start + replacement.length);
-    setMessage(`Inserted ${suggestion.label}`);
+    const editor = editorRef.current;
+    const replacement = (suggestion.code || suggestion.insert || suggestion.label).replace(/\\n/g, '\n');
+    if (editor) {
+      const model = editor.getModel();
+      const position = editor.getPosition();
+      if (model && position) {
+        const word = model.getWordUntilPosition(position);
+        const range = { startLineNumber: position.lineNumber, endLineNumber: position.lineNumber, startColumn: word.startColumn, endColumn: word.endColumn };
+        editor.executeEdits('main-base-suggestion', [{ range, text: replacement, forceMoveMarkers: true }]);
+        editor.focus();
+      }
+    } else {
+      const before = activeValue.slice(0, cursorPosition);
+      const after = activeValue.slice(cursorPosition);
+      const match = before.match(/[A-Za-z_$][A-Za-z0-9_$.-]*$/);
+      const startAt = match ? before.length - match[0].length : before.length;
+      setActiveValue(before.slice(0, startAt) + replacement + after);
+      setCursorPosition(startAt + replacement.length);
+    }
+    setMessage('Inserted ' + suggestion.label);
   };
 
   const handleLanguageChange = (nextLanguage) => {
@@ -155,9 +169,14 @@ function App() {
         <div className="editor-panel">
           <div className="panel-top"><div><div className="panel-title">Global Code Editor</div><div className="panel-caption">Selected language: {languageInfo.label} · {languageInfo.category}</div></div><button className="text-button" type="button" onClick={resetCode}>Reset</button></div>
           <div className="language-picker-wrap"><label htmlFor="language-picker">LANGUAGE / FILE TYPE</label><select id="language-picker" value={language} onChange={(event) => handleLanguageChange(event.target.value)}>{LANGUAGE_GROUPS.map((group) => <optgroup key={group.label} label={group.label}>{group.items.map(([id, label]) => <option key={id + label} value={id}>{label}</option>)}</optgroup>)}</select></div>
-          <div className="editor-area">
-            <div className="line-count" aria-hidden="true">{(activeValue || ' ').split('\n').map((_, index) => <span key={index}>{index + 1}</span>)}</div>
-            <textarea aria-label={`${languageInfo.label} code editor`} spellCheck="false" autoCapitalize="off" autoCorrect="off" value={activeValue} onChange={(event) => { setActiveValue(event.target.value); setCursorPosition(event.target.selectionStart); }} onClick={(event) => setCursorPosition(event.target.selectionStart)} onKeyUp={(event) => setCursorPosition(event.target.selectionStart)} onKeyDown={(event) => { if (event.key === 'Tab') { event.preventDefault(); const start = event.target.selectionStart; const end = event.target.selectionEnd; const next = activeValue.slice(0, start) + '  ' + activeValue.slice(end); setActiveValue(next); setCursorPosition(start + 2); } }} placeholder={`Start writing ${languageInfo.label} code here...`} />
+          <div className="editor-area monaco-editor-area">
+            <GlobalCodeEditor
+              language={language}
+              value={activeValue}
+              onChange={setActiveValue}
+              onCursorChange={setCursorPosition}
+              onReady={(editor) => { editorRef.current = editor; }}
+            />
           </div>
           <div className="editor-footer"><span><i className="tiny-live-dot" /> LOCAL EDITOR READY</span><span>{activeValue.split('\n').length} lines · {activeValue.length} chars</span><button className="text-button" type="button" onClick={copyCode}>Copy</button><button className="text-button" type="button" onClick={downloadCode}>Download</button></div>
         </div>
