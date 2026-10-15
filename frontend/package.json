@@ -5,7 +5,9 @@
   "dependencies": {
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "react-scripts": "5.0.0"
+    "react-scripts": "5.0.0",
+    "@monaco-editor/react": "^4.7.0",
+    "monaco-editor": "^0.52.2"
   },
   "scripts": {
     "start": "react-scripts start",
