@@ -54,7 +54,7 @@ button { cursor: pointer; }
 .download-button:hover { background: #203d66; }
 .preview-canvas { display: flex; justify-content: center; align-items: stretch; min-height: min(62vh, 650px); height: min(62vh, 650px); padding: 14px; overflow: auto; background-color: #e9edf4; background-image: radial-gradient(#c8d1df 1px, transparent 1px); background-size: 16px 16px; }
 .preview-frame-wrap { max-width: 100%; min-height: 100%; background: white; box-shadow: 0 3px 20px #13223b18; transition: width .18s ease; }
-.preview-frame { display: block; width: 100%; height: 100%; min-height: 100%; border: 0; background: white; }
+.preview-frame { display: block; width: 100%; height: 100%; min-height: calc(min(62vh, 650px) - 28px); border: 0; background: white; }
 .device-tablet .preview-frame-wrap, .device-mobile .preview-frame-wrap { flex-shrink: 0; }
 .preview-footer { padding: 11px 16px; border-top: 1px solid var(--line); color: #8994a6; font-size: 10px; }
 .studio-footer { max-width: 1600px; margin: 24px auto 0; display: flex; justify-content: space-between; gap: 15px; color: #8994a6; font-size: 10px; line-height: 1.6; }
