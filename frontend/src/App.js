@@ -40,13 +40,57 @@ const STARTER_JS = `document.querySelector('.cta')?.addEventListener('click', (e
 
 const deviceWidths = { desktop: '100%', tablet: '768px', mobile: '390px' };
 
+const COMPLETIONS = {
+  html: [
+    { label: 'label', insert: 'label', detail: 'HTML form label element', code: '<label for="name">Name</label>' },
+    { label: 'legend', insert: 'legend', detail: 'Caption for a fieldset', code: '<legend>Personal details</legend>' },
+    { label: 'link', insert: 'link', detail: 'Link an external stylesheet', code: '<link rel="stylesheet" href="style.css">' },
+    { label: 'li', insert: 'li', detail: 'List item element', code: '<li>List item</li>' },
+    { label: 'li*', insert: 'li', detail: 'List item with an example', code: '<ul>\\n  <li>Item one</li>\\n  <li>Item two</li>\\n</ul>' },
+    { label: 'letter', insert: 'letter', detail: 'Text placeholder example', code: '<p>Write your letter here</p>' },
+    { label: 'let', insert: 'let', detail: 'JavaScript variable (switch to JS tab)', code: 'let message = "Hello";' },
+    { label: 'header', insert: 'header', detail: 'Page or section header', code: '<header>\\n  <h1>Page title</h1>\\n</header>' },
+    { label: 'section', insert: 'section', detail: 'Semantic section', code: '<section>\\n  <h2>Section title</h2>\\n</section>' },
+    { label: 'button', insert: 'button', detail: 'Clickable button', code: '<button type="button">Click me</button>' },
+    { label: 'h1', insert: 'h1', detail: 'Main heading', code: '<h1>Main heading</h1>' },
+    { label: 'img', insert: 'img', detail: 'Image element', code: '<img src="image.jpg" alt="Description">' }
+  ],
+  css: [
+    { label: 'letter-spacing', insert: 'letter-spacing', detail: 'Space between letters', code: 'letter-spacing: 1px;' },
+    { label: 'left', insert: 'left', detail: 'Position offset from left', code: 'left: 0;' },
+    { label: 'line-height', insert: 'line-height', detail: 'Text line spacing', code: 'line-height: 1.5;' },
+    { label: 'list-style', insert: 'list-style', detail: 'List marker style', code: 'list-style: none;' },
+    { label: 'linear-gradient', insert: 'linear-gradient', detail: 'Gradient background', code: 'background: linear-gradient(135deg, #10213d, #d4af37);' },
+    { label: 'layout: flex', insert: 'display', detail: 'Flexbox layout', code: 'display: flex;\\nalign-items: center;\\njustify-content: center;' },
+    { label: 'layout: grid', insert: 'display', detail: 'CSS grid layout', code: 'display: grid;\\ngrid-template-columns: repeat(2, minmax(0, 1fr));\\ngap: 16px;' },
+    { label: 'width', insert: 'width', detail: 'Element width', code: 'width: 100%;' },
+    { label: 'max-width', insert: 'max-width', detail: 'Maximum element width', code: 'max-width: 1200px;' },
+    { label: 'color', insert: 'color', detail: 'Text color', code: 'color: #d4af37;' },
+    { label: 'box-shadow', insert: 'box-shadow', detail: 'Soft shadow', code: 'box-shadow: 0 8px 24px #00000018;' }
+  ],
+  js: [
+    { label: 'let', insert: 'let', detail: 'Declare a changeable variable', code: 'let message = "Hello";' },
+    { label: 'length', insert: 'length', detail: 'Read string or array length', code: 'const count = items.length;' },
+    { label: 'letter', insert: 'letter', detail: 'Example variable for a letter', code: 'const letter = "L";' },
+    { label: 'let…of', insert: 'let', detail: 'Loop through iterable values', code: 'for (let item of items) {\\n  console.log(item);\\n}' },
+    { label: 'let…in', insert: 'let', detail: 'Loop through object keys', code: 'for (let key in object) {\\n  console.log(key, object[key]);\\n}' },
+    { label: 'localStorage', insert: 'localStorage', detail: 'Store data in this browser', code: 'localStorage.setItem("key", "value");' },
+    { label: 'location', insert: 'location', detail: 'Current page URL information', code: 'console.log(window.location.href);' },
+    { label: 'log', insert: 'log', detail: 'Print a value for debugging', code: 'console.log(value);' },
+    { label: 'function', insert: 'function', detail: 'Declare a function', code: 'function greet(name) {\\n  return `Hello, ${name}!`;\\n}' },
+    { label: 'addEventListener', insert: 'addEventListener', detail: 'Listen for a user interaction', code: 'element.addEventListener("click", () => {\\n  // Your code here\\n});' },
+    { label: 'map', insert: 'map', detail: 'Transform array items', code: 'const result = items.map((item) => item);' },
+    { label: 'filter', insert: 'filter', detail: 'Filter array items', code: 'const result = items.filter((item) => item);' }
+  ]
+};
+
 function App() {
   const [activeTab, setActiveTab] = useState('html');
   const [html, setHtml] = useState(STARTER_HTML);
   const [css, setCss] = useState(STARTER_CSS);
   const [js, setJs] = useState(STARTER_JS);
   const [device, setDevice] = useState('desktop');
-  const [notice, setNotice] = useState('');
+  const [notice, setNotice] = useState('');\n  const [cursorPosition, setCursorPosition] = useState(0);
 
   const previewDocument = useMemo(() => {
     const isFullDocument = /<!doctype|<html[\s>]/i.test(html);
@@ -85,6 +129,28 @@ ${js}
 
   const activeValue = activeTab === 'html' ? html : activeTab === 'css' ? css : js;
   const setActiveValue = activeTab === 'html' ? setHtml : activeTab === 'css' ? setCss : setJs;
+  const textBeforeCursor = activeValue.slice(0, cursorPosition || activeValue.length);
+  const tokenMatch = textBeforeCursor.match(/[A-Za-z_$][A-Za-z0-9_$-]*$/);
+  const typedPrefix = tokenMatch ? tokenMatch[0] : '';
+  const suggestions = useMemo(() => {
+    const items = COMPLETIONS[activeTab] || [];
+    if (!typedPrefix) return items.slice(0, 6);
+    const prefix = typedPrefix.toLowerCase();
+    return items.filter((item) => item.label.toLowerCase().startsWith(prefix) || item.insert.toLowerCase().startsWith(prefix)).slice(0, 8);
+  }, [activeTab, typedPrefix]);
+
+  const applySuggestion = (suggestion) => {
+    const before = activeValue.slice(0, cursorPosition || activeValue.length);
+    const after = activeValue.slice(cursorPosition || activeValue.length);
+    const match = before.match(/[A-Za-z_$][A-Za-z0-9_$-]*$/);
+    const start = match ? before.length - match[0].length : before.length;
+    const replacement = suggestion.insert;
+    const updated = before.slice(0, start) + replacement + after;
+    setActiveValue(updated);
+    setCursorPosition(start + replacement.length);
+    setNotice(`Added suggestion: ${suggestion.label}`);
+    window.setTimeout(() => setNotice(''), 1800);
+  };
 
   const copyCode = async () => {
     try {
@@ -169,7 +235,7 @@ ${js}
               autoCapitalize="off"
               autoCorrect="off"
               value={activeValue}
-              onChange={(event) => setActiveValue(event.target.value)}
+              onChange={(event) => { setActiveValue(event.target.value); setCursorPosition(event.target.selectionStart); }}\n              onClick={(event) => setCursorPosition(event.target.selectionStart)}\n              onKeyUp={(event) => setCursorPosition(event.target.selectionStart)}
               placeholder={`Paste your ${activeTab.toUpperCase()} code here...`}
             />
           </div>
