@@ -22,6 +22,7 @@ const STARTER_JS = `document.querySelector('.cta')?.addEventListener('click', (e
 const DEVICE_WIDTHS = { desktop: '100%', tablet: '768px', mobile: '390px' };
 const PREVIEW_LANGUAGES = new Set(['html', 'css', 'javascript']);
 const ALIASES = {
+  xml: 'html', svg: 'html', jsx: 'javascript', tsx: 'typescript',
   react: 'javascript', nextjs: 'javascript', vue: 'javascript', angular: 'typescript', svelte: 'javascript',
   node: 'javascript', express: 'javascript', nestjs: 'typescript', php: 'php', laravel: 'php', wordpress: 'php',
   flutter: 'dart', reactnative: 'javascript', android: 'kotlin', ios: 'swift', electron: 'javascript',
